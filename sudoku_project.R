@@ -180,6 +180,124 @@ open_spots <- which(!valid_nums$isGiven)
 run <- 0
 
 
+rm(list = ls())
+
+isValidSudoku <- function(grid) {
+  # Ensure the grid is of length 16
+  if(length(grid) > 16) {
+    return(FALSE)
+  }
+  
+  # Convert the vector to a 4x4 matrix
+  matrix_grid <- matrix(grid, nrow = 4, byrow = TRUE)
+  
+  # Function to check rows, columns, and subgrids
+  check_set <- function(set) {
+    # Filter out zeros
+    non_zero_set <- set[set != 0]
+    
+    # Check if there are any duplicates in the non-zero elements
+    return(all(table(non_zero_set) <= 1))
+  }
+  
+  # Check rows and columns
+  for (i in 1:4) {
+    if (!check_set(matrix_grid[i, ]) || !check_set(matrix_grid[, i])) {
+      # cat("Failed at row or column", i, "\n")
+      return(FALSE)
+    }
+  }
+  
+  # Check 2x2 subgrids
+  for (row in seq(1, 4, by = 2)) {
+    for (col in seq(1, 4, by = 2)) {
+      subgrid <- matrix_grid[row:(row+1), col:(col+1)]
+      if (!check_set(as.vector(subgrid))) {
+        # cat("Failed at subgrid starting at", row, col, "\n")
+        return(FALSE)
+      }
+    }
+  }
+  
+  return(TRUE)
+}
+
+sudoku <- c(1,0,4,0,
+            0,0,0,0,
+            2,0,1,0,
+            0,1,0,4)
+
+valid_nums <- list(c(1),
+                   c(2,3),
+                   c(4),
+                   c(2,3),
+                   c(3,4),
+                   c(2,3,4),
+                   c(2,3),
+                   c(1,2,3),
+                   c(2),
+                   c(2,4),
+                   c(1),
+                   c(3),
+                   c(3),
+                   c(1),
+                   c(2,3),
+                   c(4))
+
+valid_nums_length <- c(lapply(valid_nums, function(x){length(x)}))
+
+valid_nums_index <- c(rep(1,16))
+sudoku_index <- 1
+sudoku_try <- sudoku
+while (sudoku_index != 16) {
+  # print('outer')
+  sudoku_try[sudoku_index] <- unlist(valid_nums[sudoku_index][[1]][valid_nums_index[sudoku_index]])
+  sudoku_try[(sudoku_index + 1):16] <- sudoku[(sudoku_index + 1):16]
+  # print(sudoku_try)
+  print(valid_nums_index[1:sudoku_index])
+  if (isValidSudoku(sudoku_try) == FALSE) {
+    sudoku_try_temp <- sudoku_index
+    valid_increment <- FALSE
+    while (valid_increment == FALSE) {
+      if (valid_nums_index[sudoku_try_temp] + 1 > valid_nums_length[sudoku_try_temp] & sudoku_try_temp > 1) {
+        sudoku_try_temp <- sudoku_try_temp - 1
+      }
+      if (valid_nums_length[sudoku_try_temp] == 1 & sudoku_try_temp > 1) {
+        sudoku_try_temp <- sudoku_try_temp - 1
+      }
+      if (valid_nums_index[sudoku_try_temp] + 1 <= valid_nums_length[sudoku_try_temp] &
+          valid_nums_length[sudoku_try_temp] != 1) {
+        
+        valid_nums_index[sudoku_try_temp] <- valid_nums_index[sudoku_try_temp] + 1
+        valid_increment <- TRUE
+      }
+      if ((valid_nums_length[sudoku_try_temp] == 1 | sudoku_try_temp == 1) & valid_increment == FALSE) {
+        sudoku_try_temp <- sudoku_try_temp + 1
+        valid_increment <- TRUE
+        # stop()
+      }
+      valid_nums_index[(sudoku_try_temp + 1):16] <- 1
+      sudoku_index <- sudoku_try_temp
+      # print('inner')
+    }
+    # valid_nums_index[(sudoku_try_temp + 1):16] <- 1
+    # sudoku_index <- sudoku_try_temp
+    #sudoku_try <- sudoku
+  }else{
+  sudoku_index <- sudoku_index + 1
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
